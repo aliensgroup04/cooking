@@ -51,23 +51,24 @@ if st.button("Get Recipe"):
         with st.spinner("Fetching recipe...⏳"):
             input_data = {"dish_name": user_input}
 
+            # Streamlit placeholders for dynamic updates
+            ingredients_placeholder = st.empty()
+            process_placeholder = st.empty()
+
             try:
-                recipe = None  # To hold the final parsed recipe
+                recipe = Recipe(ingredients=[], process=[])  # Initialize an empty recipe
 
                 for chunk in chain.stream(input_data):
-                    if isinstance(chunk, Recipe):  # Directly check if it's a Recipe object
-                        recipe = chunk
+                    if isinstance(chunk, Recipe):  # Ensure it's a valid Recipe object
+                        recipe.ingredients.extend(chunk.ingredients)
+                        recipe.process.extend(chunk.process)
 
-                if recipe:
-                    st.subheader("Ingredients:")
-                    for ingredient in recipe.ingredients:
-                        st.write(f"- {ingredient}")
+                        # Dynamically update UI
+                        ingredients_placeholder.subheader("Ingredients:")
+                        ingredients_placeholder.write("\n".join(f"- {i}" for i in recipe.ingredients))
 
-                    st.subheader("Preparation Steps:")
-                    for step in recipe.process:
-                        st.write(f"{step}")
-                else:
-                    st.error("Failed to retrieve recipe. Please try again.")
+                        process_placeholder.subheader("Preparation Steps:")
+                        process_placeholder.write("\n".join(f"{step}" for step in recipe.process))
 
             except ValidationError as e:
                 st.error("Error parsing the response. Try again!")
