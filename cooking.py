@@ -60,8 +60,9 @@ if st.button("Get Recipe"):
 
                 for chunk in chain.stream(input_data):
                     if isinstance(chunk, Recipe):  # Ensure it's a valid Recipe object
-                        recipe.ingredients.extend(chunk.ingredients)
-                        recipe.process.extend(chunk.process)
+                        # Remove duplicates while maintaining order
+                        recipe.ingredients = list(set(recipe.ingredients + chunk.ingredients))
+                        recipe.process = list(dict.fromkeys(recipe.process + chunk.process))
 
                         # Update Ingredients List
                         with ingredients_placeholder.container():
@@ -78,5 +79,6 @@ if st.button("Get Recipe"):
                 st.write(str(e))  # Display error details for debugging
     else:
         st.warning("Please enter a dish name!")
+
 st.markdown("<hr>", unsafe_allow_html=True)
 st.markdown("<h5 style='color: gray;'>Chef Assistant made by Suman</h5>", unsafe_allow_html=True)
