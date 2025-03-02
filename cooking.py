@@ -20,7 +20,7 @@ class Recipe(BaseModel):
 
 # Output parser
 output_parser = PydanticOutputParser(pydantic_object=Recipe)
-model = ChatGoogleGenerativeAI(model="gemini-1.5-pro", google_api_key="AIzaSyBMCc42a-cWcpnG1TfCC830kbHG20dAqpo")
+model = ChatGoogleGenerativeAI(model="gemini-2.0", google_api_key="AIzaSyAZ01F26Iq4q9-P16ayZzv417pPdDK1x1c")
 
 # Prompt Template
 prompt_template = ChatPromptTemplate(
