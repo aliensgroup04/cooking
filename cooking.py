@@ -78,3 +78,4 @@ if st.button("Get Recipe"):
                 st.write(str(e))  # Display error details for debugging
     else:
         st.warning("Please enter a dish name!")
+st.markdown("<h5 style='color: gray;'>Chef Assistant made by Suman</h5>", unsafe_allow_html=True)
