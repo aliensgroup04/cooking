@@ -11,7 +11,6 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import PydanticOutputParser
 from pydantic import BaseModel, Field, ValidationError
-import json
 
 # Define Recipe Schema
 class Recipe(BaseModel):
@@ -20,7 +19,8 @@ class Recipe(BaseModel):
 
 # Output parser
 output_parser = PydanticOutputParser(pydantic_object=Recipe)
-model = ChatGoogleGenerativeAI(model="gemini-2.0", google_api_key="AIzaSyCBhbuJbxjlghoZ3X1HQhS_qwuMpSE1wC0")
+
+model = ChatGoogleGenerativeAI(model="gemini-1.5-pro", google_api_key="AIzaSyCBhbuJbxjlghoZ3X1HQhS_qwuMpSE1wC0")
 
 # Prompt Template
 prompt_template = ChatPromptTemplate(
@@ -78,3 +78,4 @@ if st.button("Get Recipe"):
                 st.write(str(e))  # Display error details for debugging
     else:
         st.warning("Please enter a dish name!")
+
