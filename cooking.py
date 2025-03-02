@@ -50,26 +50,27 @@ if st.button("Get Recipe"):
     if user_input:
         with st.spinner("Fetching recipe...⏳"):
             input_data = {"dish_name": user_input}
-            response_text = ""
-
-            for chunk in chain.stream(input_data):
-                response_text += chunk.content  # Buffer text output
 
             try:
-                recipe_data = json.loads(response_text)
-                recipe = Recipe(**recipe_data)  # Parse into Pydantic model
+                recipe = None  # To hold the final parsed recipe
 
-                st.subheader("Ingredients:")
-                for ingredient in recipe.ingredients:
-                    st.write(f"- {ingredient}")
+                for chunk in chain.stream(input_data):
+                    if isinstance(chunk, Recipe):  # Directly check if it's a Recipe object
+                        recipe = chunk
 
-                st.subheader("Preparation Steps:")
-                for step in recipe.process:
-                    st.write(f"{step}")
+                if recipe:
+                    st.subheader("Ingredients:")
+                    for ingredient in recipe.ingredients:
+                        st.write(f"- {ingredient}")
 
-            except (ValidationError, json.JSONDecodeError) as e:
+                    st.subheader("Preparation Steps:")
+                    for step in recipe.process:
+                        st.write(f"{step}")
+                else:
+                    st.error("Failed to retrieve recipe. Please try again.")
+
+            except ValidationError as e:
                 st.error("Error parsing the response. Try again!")
-                st.write(response_text)  # Show raw output for debugging
+                st.write(str(e))  # Display error details for debugging
     else:
         st.warning("Please enter a dish name!")
-
