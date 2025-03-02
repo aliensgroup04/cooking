@@ -20,9 +20,6 @@ class Recipe(BaseModel):
 
 # Output parser
 output_parser = PydanticOutputParser(pydantic_object=Recipe)
-
-# Secure API key
-api_key = st.secrets["google_api_key"]  # Use Streamlit secrets
 model = ChatGoogleGenerativeAI(model="gemini-1.5-pro", google_api_key="AIzaSyBMCc42a-cWcpnG1TfCC830kbHG20dAqpo")
 
 # Prompt Template
