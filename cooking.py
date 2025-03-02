@@ -59,19 +59,7 @@ if st.button("Get Recipe"):
                 recipe = Recipe(ingredients=[], process=[])  # Initialize an empty recipe
 
                 for chunk in chain.stream(input_data):
-                    if isinstance(chunk, Recipe):  # Ensure it's a valid Recipe object
-                        recipe.ingredients.extend(chunk.ingredients)
-                        recipe.process.extend(chunk.process)
-
-                        # Update Ingredients List
-                        with ingredients_placeholder.container():
-                            st.subheader("🥕 Ingredients:")
-                            st.markdown("\n".join(f"- {i}" for i in recipe.ingredients))
-
-                        # Update Preparation Steps
-                        with process_placeholder.container():
-                            st.subheader("👨‍🍳 Preparation Steps:")
-                            st.markdown("\n".join(f"{idx + 1}. {step}" for idx, step in enumerate(recipe.process)))
+                    print(chunk)
 
             except ValidationError as e:
                 st.error("Error parsing the response. Try again!")
