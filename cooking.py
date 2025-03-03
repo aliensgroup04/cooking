@@ -39,7 +39,7 @@ prompt_template = ChatPromptTemplate(
 chain = prompt_template | model | output_parser
 
 # Streamlit UI
-st.title("🍽️ AI Chef Assistant")
+st.title("🍽️ Chef Assistant")
 
 # Store recipe data
 if "recipe" not in st.session_state:
