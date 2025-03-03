@@ -11,12 +11,12 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import PydanticOutputParser
 from pydantic import BaseModel, Field, ValidationError
+from typing import List
 
-# Define Recipe Schema
 class Recipe(BaseModel):
-    ingredients: list = Field(description="List of ingredients for preparing the dish")
-    process: list = Field(description="Steps to follow for preparing the dish")
-
+    ingredients: List[str] = Field(description="List of ingredients for preparing the dish")
+    process: List[str] = Field(description="Steps to follow for preparing the dish")
+    varieties: List[str] = Field(description="List of names of similar varieties to that dish")
 # Output parser
 output_parser = PydanticOutputParser(pydantic_object=Recipe)
 
@@ -44,41 +44,42 @@ chain = prompt_template | model | output_parser
 
 # Streamlit UI
 st.title("Chef Assistant 🍽️")
-user_input = st.text_input("Enter your dish name", placeholder="E.g., Pasta, Biryani")
+if "recipe" not in st.session_state:
+    st.session_state.recipe = None
 
-if st.button("Get Recipe"):
-    if user_input:
-        with st.spinner("Fetching recipe...⏳"):
-            input_data = {"dish_name": user_input}
+# Get main dish recipe
+dish_name = st.text_input("Enter a dish name", placeholder="E.g., Pasta, Biryani")
 
-            # Streamlit placeholders for real-time updates
-            ingredients_placeholder = st.empty()
-            process_placeholder = st.empty()
+if st.button("Get Recipe") and dish_name:
+    with st.spinner("Fetching recipe...⏳"):
+        st.session_state.recipe = chain.invoke({"dish_name": dish_name})
 
-            try:
-                recipe = Recipe(ingredients=[], process=[])  # Initialize an empty recipe
+# Display recipe
+if st.session_state.recipe:
+    recipe = st.session_state.recipe
+    st.subheader("🥕 Ingredients:")
+    st.markdown("\n".join(f"- {i}" for i in recipe.ingredients))
 
-                for chunk in chain.stream(input_data):
-                    if isinstance(chunk, Recipe):  # Ensure it's a valid Recipe object
-                        # Remove duplicates while maintaining order
-                        recipe.ingredients = list(set(recipe.ingredients + chunk.ingredients))
-                        recipe.process = list(dict.fromkeys(recipe.process + chunk.process))
+    st.subheader("👨‍🍳 Preparation Steps:")
+    st.markdown("\n".join(f"{idx + 1}. {step}" for idx, step in enumerate(recipe.process)))
 
-                        # Update Ingredients List
-                        with ingredients_placeholder.container():
-                            st.subheader("🥕 Ingredients:")
-                            st.markdown("\n".join(f"- {i}" for i in recipe.ingredients))
+    # Ask if user wants to try a variety
+    if recipe.varieties:
+        st.subheader("🍽️ Similar Varieties:")
+        st.markdown("\n".join(f"- {v}" for v in recipe.varieties))
 
-                        # Update Preparation Steps
-                        with process_placeholder.container():
-                            st.subheader("👨‍🍳 Preparation Steps:")
-                            st.markdown("\n".join(f"{idx + 1}. {step}" for idx, step in enumerate(recipe.process)))
+        variety_name = st.text_input("Try a variety! Enter a name:", placeholder="E.g., Chicken Biryani")
 
-            except ValidationError as e:
-                st.error("Error parsing the response. Try again!")
-                st.write(str(e))  # Display error details for debugging
-    else:
-        st.warning("Please enter a dish name!")
+        if st.button("Get Variety Recipe") and variety_name:
+            with st.spinner(f"Fetching recipe for {variety_name}...⏳"):
+                variety_recipe = chain.invoke({"dish_name": variety_name})
 
-st.markdown("<hr>", unsafe_allow_html=True)
-st.markdown("<h5 style='color: gray;'>Chef Assistant made by Suman</h5>", unsafe_allow_html=True)
+            # Display variety recipe
+            st.subheader(f"🍽️ Recipe for {variety_name}")
+            st.subheader("🥕 Ingredients:")
+            st.markdown("\n".join(f"- {i}" for i in variety_recipe.ingredients))
+            st.subheader("👨‍🍳 Preparation Steps:")
+            st.markdown("\n".join(f"{idx + 1}. {step}" for idx, step in enumerate(variety_recipe.process)))
+
+st.markdown("---")
+st.markdown("Chef Assistant Made by Suman", unsafe_allow_html=True)
