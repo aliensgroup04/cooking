@@ -22,7 +22,7 @@ class Recipe(BaseModel):
 output_parser = PydanticOutputParser(pydantic_object=Recipe)
 
 # Load API key
-GOOGLE_API_KEY = os.getenv(""AIzaSyCBhbuJbxjlghoZ3X1HQhS_qwuMpSE1wC0"")
+GOOGLE_API_KEY = os.getenv("AIzaSyCBhbuJbxjlghoZ3X1HQhS_qwuMpSE1wC0")
 model = ChatGoogleGenerativeAI(model="gemini-1.5-pro", google_api_key=GOOGLE_API_KEY)
 
 # Prompt Template
