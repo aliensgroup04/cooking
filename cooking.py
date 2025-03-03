@@ -12,6 +12,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import PydanticOutputParser
 from pydantic import BaseModel, Field, ValidationError
 from typing import List
+import os
 
 class Recipe(BaseModel):
     ingredients: List[str] = Field(description="List of ingredients for the dish")
@@ -22,8 +23,9 @@ class Recipe(BaseModel):
 output_parser = PydanticOutputParser(pydantic_object=Recipe)
 
 # Load API key
-model = ChatGoogleGenerativeAI(model="gemini-1.5-pro", google_api_key="AIzaSyCBhbuJbxjlghoZ3X1HQhS_qwuMpSE1wC0")
-
+model = ChatGoogleGenerativeAI(
+    model="gemini-1.5-pro", google_api_key=os.getenv("GOOGLE_API_KEY", "AIzaSyCBhbuJbxjlghoZ3X1HQhS_qwuMpSE1wC0")
+)
 # Prompt Template
 prompt_template = ChatPromptTemplate(
     messages=[
