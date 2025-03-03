@@ -14,36 +14,35 @@ from pydantic import BaseModel, Field, ValidationError
 from typing import List
 
 class Recipe(BaseModel):
-    ingredients: List[str] = Field(description="List of ingredients for preparing the dish")
-    process: List[str] = Field(description="Steps to follow for preparing the dish")
-    varieties: List[str] = Field(description="List of names of similar varieties to that dish")
+    ingredients: List[str] = Field(description="List of ingredients for the dish")
+    process: List[str] = Field(description="Steps to prepare the dish")
+    varieties: List[str] = Field(description="Similar dish varieties")
+
 # Output parser
 output_parser = PydanticOutputParser(pydantic_object=Recipe)
 
-model = ChatGoogleGenerativeAI(model="gemini-1.5-pro", google_api_key="AIzaSyCBhbuJbxjlghoZ3X1HQhS_qwuMpSE1wC0")
+# Load API key
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+model = ChatGoogleGenerativeAI(model="gemini-1.5-pro", google_api_key=GOOGLE_API_KEY)
 
 # Prompt Template
 prompt_template = ChatPromptTemplate(
     messages=[
-        (
-            "system",
-            """You are a helpful AI Chef Assistant.
-            Given a dish name by the user, you provide the process of preparation step by step along with ingredients.
-            Output Format Instructions:
-            {output_format_instructions}""",
-        ),
-        ("human", "Give me the recipe and step-by-step instructions for cooking {dish_name}."),
+        ("system", """You are an AI Chef Assistant.
+                      Given a dish name, provide ingredients and step-by-step instructions.
+                      Format: {output_format_instructions}"""),
+        ("human", "Give me the recipe for {dish_name}."),
     ],
-    partial_variables={
-        "output_format_instructions": output_parser.get_format_instructions()
-    },
+    partial_variables={"output_format_instructions": output_parser.get_format_instructions()},
 )
 
 # Chain definition
 chain = prompt_template | model | output_parser
 
 # Streamlit UI
-st.title("Chef Assistant 🍽️")
+st.title("🍽️ AI Chef Assistant")
+
+# Store recipe data
 if "recipe" not in st.session_state:
     st.session_state.recipe = None
 
